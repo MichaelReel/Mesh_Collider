@@ -1,15 +1,19 @@
-extends Spatial
+extends KinematicBody
 
 export var speed = 1.0
 
+var camera                      # Camera node - the first person view
+var camera_holder               # Spatial node holding all we want to rotate on the X (vert) axis
+
+const MOUSE_SENSITIVITY = 0.10  # May need to adjust depending on mouse sensitivity
+
 # Intern variables.
-var dir = Vector3(0.0, 0.0, 0.0)
-
-var camera
-var camera_holder
-
-# May need to adjust depending on mouse sensitivity
-const MOUSE_SENSITIVITY = 0.10
+var vel = Vector3()
+const NORMAL_GRAVITY = -24.8    # Strength of gravity while walking
+const MAX_SPEED = 20            # Fastest player can reach
+const JUMP_SPEED = 18           # Affects how high we can jump
+const ACCEL = 3.5               # How fast we get to top speed
+const DEACCEL = 16              # How fast we come to a complete stop
 const MAX_SLOPE_ANGLE = 40      # Steepest angle we can climb
 
 
@@ -41,19 +45,51 @@ func _physics_process(delta):
 	if Input.is_action_pressed("right"):
 		dir += cam_xform.basis.x.normalized()
 	
+	# Check we're on the floor before we can jump
+	if is_on_floor():
+		if Input.is_action_just_pressed("up"):
+			vel.y = JUMP_SPEED
+	
+	# Remove any extra vertical movement from the direction
 	dir.y = 0
 	dir = dir.normalized()
 
-	move_and_slide(dir, Vector3(0,1,0), 0.05, 4, deg2rad(MAX_SLOPE_ANGLE))
-
-	dir = Vector3()
-
-	if Input.is_action_pressed("down"):
-		dir.y -= 1.0
-	if Input.is_action_pressed("up"):
-		dir.y += 1.0
+	# Accelerate by normal gravity downwards
+	var grav = NORMAL_GRAVITY
+	vel.y += delta * grav
 	
-	translate(dir * speed * delta)
+	# Get the current horizontal only movement
+	var hvel = vel
+	hvel.y = 0
+
+	# Get how far we can move horizontally
+	var target = dir
+	target *= MAX_SPEED
+
+	# Set ac(de)celeration depending on input direction 
+	var accel
+	if dir.dot(hvel) > 0:
+		accel = ACCEL
+	else:
+		accel = DEACCEL
+	
+	# Interpolate between the current (horizontal) velocity and the intended velocity
+	hvel = hvel.linear_interpolate(target, accel*delta)
+	vel.x = hvel.x
+	vel.z = hvel.z
+
+	# Use the KinematicBody to control physics movement
+	move_and_slide(vel, Vector3(0,1,0), 0.05, 4, deg2rad(MAX_SLOPE_ANGLE))
+
+	## This was only for "Flying" mode - need to turn off gravity to work again
+	# dir = Vector3()
+
+	# if Input.is_action_pressed("down"):
+	# 	dir.y -= 1.0
+	# if Input.is_action_pressed("up"):
+	# 	dir.y += 1.0
+	
+	# translate(dir * speed * delta)
 
 
 func _input(event):

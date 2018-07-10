@@ -12,7 +12,6 @@ const render_options = [
 ]
 
 var render_as = 2
-var color_scale
 
 func _ready():
 	graph = Graph.new()
@@ -23,6 +22,10 @@ func _ready():
 	# Creating drawing elements
 	# Create a mesh from the voronoi site info
 	self.set_mesh(create_mesh())
+
+	var parent = $"/root/Root/Terrain"
+	var shape = self.create_trimesh_collision()
+	parent.add_child(shape)
 
 func add_base_height_features():
 
@@ -68,13 +71,13 @@ func create_mesh():
 
 		Mesh.PRIMITIVE_TRIANGLES:
 			# Recalculate the colour scale
-			color_scale = (2.0 / (graph.max_height - graph.min_height))
-
+			var color_scale = (2.0 / (graph.max_height - graph.min_height))
+			
 			surfTool.begin(Mesh.PRIMITIVE_TRIANGLES)
 			for tri in graph.triangles:
-				add_coloured_vertex(surfTool, tri.v1.pos)
-				add_coloured_vertex(surfTool, tri.v3.pos)
-				add_coloured_vertex(surfTool, tri.v2.pos)
+				add_coloured_vertex(surfTool, tri.v1.pos, color_scale)
+				add_coloured_vertex(surfTool, tri.v3.pos, color_scale)
+				add_coloured_vertex(surfTool, tri.v2.pos, color_scale)
 			
 			# surfTool.index()
 			surfTool.generate_normals()
@@ -86,7 +89,7 @@ func create_mesh():
 	surfTool.commit(mesh)
 	return mesh
 
-func add_coloured_vertex(surfTool, pos):
+func add_coloured_vertex(surfTool, pos, color_scale):
 	var height = pos.y
 	var red = max(((height - graph.min_height) * color_scale) - 1.0, 0.0)
 	var green = min((height - graph.min_height) * color_scale, 1.0)

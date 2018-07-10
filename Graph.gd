@@ -214,7 +214,7 @@ func create_height_features(hashes, base_height, start_amp, amp_multiplier, x_of
 		var new_height = base_height
 		var amp = start_amp
 		for p in hashes:
-			new_height += p.getHash(v.pos.x, v.pos.z) * amp
+			new_height += p.getHash(v.pos.x + x_offset, v.pos.z + z_offset) * amp
 			amp *= amp_multiplier
 		v.set_height(new_height)
 		min_height = min(min_height, new_height)

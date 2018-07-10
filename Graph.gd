@@ -10,9 +10,6 @@ var triangles
 var min_height = INF
 var max_height = -INF
 
-# Water flow tree sinks
-var non_dependants
-
 class Vertex:
 	var pos    # Vector3
 	var index
@@ -22,21 +19,11 @@ class Vertex:
 	var tris       # Array of parent Triangle
 	var connectors # Array of connected vertices
 
-	# Water flow tree
-	var dependants      # Uphill
-	var dependancy      # Downhill
-	var closed
-	var water_height
-	var on_edge
-
 	func _init(vertex):
 		pos        = vertex
 		edges      = []
 		tris       = []
 		connectors = []
-		dependants = []
-		closed     = false
-		on_edge    = false
 
 	static func sort(a, b):
 		# Sort by z then x then y
@@ -60,25 +47,6 @@ class Vertex:
 			var tmp = vl[2]
 			vl[2] = vl[1]
 			vl[1] = tmp
-	
-	func check_for_depency():
-		# find the lowest attached vertex, 
-		# if lower that this, set as dependancy
-		# return true if dependency found
-		var min_connected = self
-
-		# Find the lowest
-		for v in connectors:
-			if v.pos.y < min_connected.pos.y:
-				min_connected = v
-
-		# Lower than this?
-		if not min_connected.equals(self):
-			dependancy = min_connected
-			min_connected.dependants = self
-			return true
-		else:
-			return false
 
 	static func place_vertex_in_list(list, v):
 		var v_ind = list.bsearch_custom(v, v, "sort")
@@ -90,7 +58,6 @@ class Vertex:
 
 	func set_height(new_height):
 		pos.y = new_height
-		water_height = new_height
 
 class Edge:
 	var v1    # Vertex
@@ -216,7 +183,7 @@ func create_base_square_grid(width, breadth):
 	for z in breadth:
 		for x in width:
 			var sx = x * dx
-			var sz = x * dz
+			var sz = z * dz
 			var ex = (x + 1) * dx
 			var ez = (z + 1) * dz
 
@@ -260,12 +227,3 @@ func update_vertex_indices():
 	for vert in vertices:
 		vert.index = ind
 		ind += 1
-
-func create_flow_trees():
-	non_dependants = []
-	for v in vertices:
-		if not v.check_for_depency():
-			non_dependants.append(v)
-
-func erode_height_features():
-	pass

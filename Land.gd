@@ -5,6 +5,9 @@ var graph
 var Graph = load("res://Graph.gd")
 var Perlin = load("res://PerlinRef.gd")
 
+var grid_size
+var offset
+
 const render_options = [
 	Mesh.PRIMITIVE_POINTS,
 	Mesh.PRIMITIVE_LINES,
@@ -13,23 +16,43 @@ const render_options = [
 
 var render_as = 2
 
-func _ready():
-	graph = Graph.new()
+func _init(gs, os, communal_graph = null):
+# func _ready():
+	# var grid_size = Vector2(64, 64)
+	# var offset = Vector3(0, 0, 0)
+
+	self.grid_size = gs
+	self.offset = os
+
+	if communal_graph:
+		graph = communal_graph
+	else:
+		graph = Graph.new()
+
+func generate_content():
+	graph.clear()
+
+	print ("Creating new land chunk: " + str(offset) + " with grid: " + str(grid_size) + ",")
+	print ("            translation: " + str(translation) + ", scale: " + str(scale))
+	print ("                os time: " + str(OS.get_unix_time()))
+
 
 	# Update the input graph to give variable heights
-	add_base_height_features()
+	add_base_height_features(grid_size, offset)
 
 	# Creating drawing elements
 	# Create a mesh from the voronoi site info
 	self.set_mesh(create_mesh())
 
-	var parent = $"/root/Root/Terrain"
-	var shape = self.create_trimesh_collision()
-	parent.add_child(shape)
+	# Make a collsion surface from this mesh and add it to the scene
+	add_child(create_trimesh_collision())
 
-func add_base_height_features():
+	print ("Content generated: " + str(offset))
+	print ("          os time: " + str(OS.get_unix_time()))
 
-	graph.create_base_square_grid(64, 64)
+func add_base_height_features(grid_size, offset):
+
+	graph.create_base_square_grid(grid_size.x, grid_size.y)
 
 	var zoom = 0.5
 	var procs = [
@@ -38,7 +61,7 @@ func add_base_height_features():
 		Perlin.new(0.0078125, 0.0078125, 1.0, zoom),
 	]
 
-	graph.create_height_features(procs, 0.125, 0.25, 0.125)
+	graph.create_height_features(procs, 0.125, 0.25, 0.125, offset.x, offset.z)
 
 func create_mesh():
 	if not graph:

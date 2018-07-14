@@ -1,6 +1,6 @@
 extends KinematicBody
 
-export var speed = 1.0
+# export var speed = 1.0
 
 var camera                      # Camera node - the first person view
 var camera_holder               # Spatial node holding all we want to rotate on the X (vert) axis
@@ -64,6 +64,9 @@ func _physics_process(delta):
 		print ("Terminal velocity reached, celestial hack activated")
 		vel.y = UNSTICK_SPEED
 	
+	if translation.y < -200:
+		translation.y = 200
+	
 	# Remove any extra vertical movement from the direction
 	dir.y = 0
 	dir = dir.normalized()
@@ -104,13 +107,14 @@ func _physics_process(delta):
 	
 	# translate(dir * speed * delta)
 
-	status += "dir      : " + str(dir) + "\n"
-	status += "cam_xform: " + str(cam_xform) + "\n"
-	status += "grav     : " + str(NORMAL_GRAVITY) + "\n"
-	status += "hvel     : " + str(hvel) + "\n"
-	status += "target   : " + str(target) + "\n"
-	status += "accel    : " + str(accel) + "\n"
-	status += "origin   : " + str(self.transform.origin) + "\n"
+	status += "dir         : " + str(dir) + "\n"
+	status += "cam_xform   : " + str(cam_xform) + "\n"
+	status += "grav        : " + str(NORMAL_GRAVITY) + "\n"
+	status += "hvel        : " + str(hvel) + "\n"
+	status += "target      : " + str(target) + "\n"
+	status += "accel       : " + str(accel) + "\n"
+	status += "translation : " + str(self.translation) + "\n"
+	status += "rotation    : " + str(self.rotation) + "\n"
 
 	status_output.text = status
 

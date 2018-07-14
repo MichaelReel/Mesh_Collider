@@ -10,14 +10,18 @@ const MOUSE_SENSITIVITY = 0.10  # May need to adjust depending on mouse sensitiv
 # Intern variables.
 var vel = Vector3()
 const NORMAL_GRAVITY = -24.8    # Strength of gravity while walking
+const TERMINAL_VELOCITY = 50    # If we're falling this fast, something isn't right
+const UNSTICK_SPEED = 4         # Hack "jump" speed to unstick camera off the terrain
 const MAX_SPEED = 20            # Fastest player can reach
 const JUMP_SPEED = 18           # Affects how high we can jump
 const ACCEL = 3.5               # How fast we get to top speed
 const DEACCEL = 16              # How fast we come to a complete stop
-const MAX_SLOPE_ANGLE = 40      # Steepest angle we can climb
+const MAX_SLOPE_ANGLE = 89      # Steepest angle we can climb
 
+var status_output
 
 func _ready():
+	status_output = $HUD/Panel/Label
 	camera = $CameraMount/Camera
 	camera_holder = $CameraMount
 	
@@ -28,6 +32,9 @@ func _ready():
 	set_process_input(true)
 
 func _physics_process(delta):
+
+	var status = "vel      : " + str(vel) + "\n"
+
 	# Intended direction of movement
 	var dir = Vector3()
 	# Global camera transform
@@ -44,19 +51,22 @@ func _physics_process(delta):
 		dir += -cam_xform.basis.x.normalized()
 	if Input.is_action_pressed("right"):
 		dir += cam_xform.basis.x.normalized()
-	
+
+	# Accelerate by normal gravity downwards
+	vel.y += delta * NORMAL_GRAVITY
+
 	# Check we're on the floor before we can jump
 	if is_on_floor():
+		vel.y = 0
 		if Input.is_action_just_pressed("up"):
 			vel.y = JUMP_SPEED
+	elif vel.y < -TERMINAL_VELOCITY:
+		print ("Terminal velocity reached, celestial hack activated")
+		vel.y = UNSTICK_SPEED
 	
 	# Remove any extra vertical movement from the direction
 	dir.y = 0
 	dir = dir.normalized()
-
-	# Accelerate by normal gravity downwards
-	var grav = NORMAL_GRAVITY
-	vel.y += delta * grav
 	
 	# Get the current horizontal only movement
 	var hvel = vel
@@ -78,8 +88,11 @@ func _physics_process(delta):
 	vel.x = hvel.x
 	vel.z = hvel.z
 
+	
+
 	# Use the KinematicBody to control physics movement
-	move_and_slide(vel, Vector3(0,1,0), 0.05, 4, deg2rad(MAX_SLOPE_ANGLE))
+	vel = move_and_slide(vel, Vector3(0,1,0), 5.0, 4, deg2rad(MAX_SLOPE_ANGLE))
+	# move_and_slide(vel, Vector3(0,1,0))
 
 	## This was only for "Flying" mode - need to turn off gravity to work again
 	# dir = Vector3()
@@ -90,6 +103,16 @@ func _physics_process(delta):
 	# 	dir.y += 1.0
 	
 	# translate(dir * speed * delta)
+
+	status += "dir      : " + str(dir) + "\n"
+	status += "cam_xform: " + str(cam_xform) + "\n"
+	status += "grav     : " + str(NORMAL_GRAVITY) + "\n"
+	status += "hvel     : " + str(hvel) + "\n"
+	status += "target   : " + str(target) + "\n"
+	status += "accel    : " + str(accel) + "\n"
+	status += "origin   : " + str(self.transform.origin) + "\n"
+
+	status_output.text = status
 
 
 func _input(event):

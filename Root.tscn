@@ -24,7 +24,7 @@ radius = 1.0
 
 [node name="Terrain" type="Spatial" parent="." index="0"]
 
-transform = Transform( 64, 0, 0, 0, 64, 0, 0, 0, 64, -32, -32, -32 )
+transform = Transform( 128, 0, 0, 0, 128, 0, 0, 0, 128, -64, -32, -64 )
 _sections_unfolded = [ "Transform" ]
 
 [node name="Land" type="MeshInstance" parent="Terrain" index="0"]
@@ -57,7 +57,7 @@ axis_lock_angular_y = false
 axis_lock_angular_z = false
 collision/safe_margin = 0.001
 script = ExtResource( 2 )
-_sections_unfolded = [ "Transform" ]
+_sections_unfolded = [ "Transform", "Visibility" ]
 speed = 1.0
 
 [node name="CameraMount" type="Spatial" parent="PlayerBody" index="0"]
@@ -84,5 +84,55 @@ _sections_unfolded = [ "Transform" ]
 
 shape = SubResource( 3 )
 disabled = false
+
+[node name="HUD" type="Control" parent="PlayerBody" index="2"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 1024.0
+margin_bottom = 600.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+
+[node name="Panel" type="Panel" parent="PlayerBody/HUD" index="0"]
+
+modulate = Color( 1, 1, 1, 0.156863 )
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 1024.0
+margin_bottom = 600.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+_sections_unfolded = [ "Visibility" ]
+
+[node name="Label" type="Label" parent="PlayerBody/HUD/Panel" index="0"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 1024.0
+margin_bottom = 600.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 2
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 4
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
 
 

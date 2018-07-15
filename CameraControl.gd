@@ -4,6 +4,7 @@ extends KinematicBody
 
 var camera                      # Camera node - the first person view
 var camera_holder               # Spatial node holding all we want to rotate on the X (vert) axis
+var cam_ref
 
 const MOUSE_SENSITIVITY = 0.10  # May need to adjust depending on mouse sensitivity
 
@@ -21,11 +22,11 @@ const MAX_SLOPE_ANGLE = 89      # Steepest angle we can climb
 var status_output
 
 func _ready():
-	status_output = $HUD/Panel/Label
+	status_output = $"/root/Root/HUD/Panel/PlayerLabel"
 	camera = $CameraMount/Camera
 	camera_holder = $CameraMount
-	
-	set_physics_process(true)
+
+	cam_ref = weakref(camera)
 
 	# Keep the mouse in the current window
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -37,6 +38,13 @@ func _physics_process(delta):
 
 	# Intended direction of movement
 	var dir = Vector3()
+
+	# Check camera hasn't been freed
+	if not cam_ref.get_ref():
+		camera = $CameraMount/Camerat
+		cam_ref = weakref(camera)
+		return
+
 	# Global camera transform
 	var cam_xform = camera.get_global_transform()
 

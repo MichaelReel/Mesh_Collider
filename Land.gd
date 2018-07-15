@@ -57,6 +57,7 @@ func add_base_height_features(grid_size, offset):
 	var zoom = 0.5
 	var procs = [
 		Perlin.new(0.125, 0.125, 1.0, zoom),
+		Perlin.new(1.0, 1.0, 1.0, zoom),
 		Perlin.new(0.03125, 0.03125, 1.0, zoom),
 		Perlin.new(0.0078125, 0.0078125, 1.0, zoom),
 	]

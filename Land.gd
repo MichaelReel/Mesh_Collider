@@ -29,9 +29,9 @@ func _init(gs, os, communal_graph = null):
 		graph = Graph.new()
 
 func generate_content():
-	print ("Creating new land chunk: " + str(offset) + " with grid: " + str(grid_size) + ",")
-	print ("            translation: " + str(translation) + ", scale: " + str(scale))
-	print ("                os time: " + str(OS.get_unix_time()))
+	# print ("Creating new land chunk: " + str(offset) + " with grid: " + str(grid_size) + ",")
+	# print ("            translation: " + str(translation) + ", scale: " + str(scale))
+	# print ("                os time: " + str(OS.get_unix_time()))
 
 
 	# Update the input graph to give variable heights
@@ -44,8 +44,8 @@ func generate_content():
 	# Make a collsion surface from this mesh and add it to the scene
 	add_child(create_trimesh_collision())
 
-	print ("Content generated: " + str(offset))
-	print ("          os time: " + str(OS.get_unix_time()))
+	# print ("Content generated: " + str(offset))
+	# print ("          os time: " + str(OS.get_unix_time()))
 
 func add_base_height_features(grid_size, offset):
 

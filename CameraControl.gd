@@ -63,15 +63,11 @@ func _physics_process(delta):
 	# Accelerate by normal gravity downwards
 	vel.y += delta * NORMAL_GRAVITY
 
-	# Check we're on the floor before we can jump
-	if is_on_floor():
-		vel.y = 0
+	# Check we're falling before we can jump
+	if vel.y <= 0:
 		if Input.is_action_just_pressed("up"):
 			vel.y = JUMP_SPEED
-	elif vel.y < -TERMINAL_VELOCITY:
-		print ("Terminal velocity reached, celestial hack activated")
-		vel.y = UNSTICK_SPEED
-	
+
 	if translation.y < -200:
 		translation.y = 200
 	

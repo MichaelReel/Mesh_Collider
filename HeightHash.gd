@@ -6,22 +6,42 @@ extends Object
 
 var Perlin = load("res://PerlinRef.gd")
 
-var zoom
+var variation_hash
+var island_limiter
+
 var hashes
 var base_height
 var start_amp
 var amp_multiplier
 
+class ContinentalDome:
+	var r
+	func _init(radius):
+		# Radius is in chunks
+		r = radius
+
+	func getHash(x, z):
+		var y = 0.0
+		var lxz = Vector2(x, z).length()
+		if lxz > r:
+			return y
+		y = cos(PI * lxz / r) + 1.0
+
+		return y / 2.0
+
+
 func _init():
-	zoom = 0.5
+	island_limiter = ContinentalDome.new(16.0)
+	variation_hash = Perlin.new(8.0, 8.0, 8.0, 1.0)
 	hashes = [
-		Perlin.new(0.125, 0.125, 1.0, zoom),
-		Perlin.new(1.0, 1.0, 1.0, zoom),
-		Perlin.new(0.03125, 0.03125, 1.0, zoom),
-		Perlin.new(0.0078125, 0.0078125, 1.0, zoom),
+		Perlin.new(1.0, 1.0, 1.0, 1.0),
+		Perlin.new(0.25, 0.25, 0.25, 1.0),
+		Perlin.new(0.0625, 0.0625, 0.0625, 1.0),
+		# Perlin.new(0.03125, 0.03125, 1.0, 1.0),
+		# Perlin.new(0.0078125, 0.0078125, 1.0, 1.0),
 	]
 
-	base_height = 0.125
+	base_height = 1
 	start_amp = 0.25
 	amp_multiplier = 0.125
 
@@ -31,4 +51,4 @@ func getHash(x, y):
 	for p in hashes:
 		new_height += p.getHash(x, y) * amp
 		amp *= amp_multiplier
-	return new_height
+	return new_height * island_limiter.getHash(x, y) * (variation_hash.getHash(x, y) + 1.0)

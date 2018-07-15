@@ -113,6 +113,7 @@ func _process(delta):
 	status += "queue   : " + str(queue) + "\n"
 	status += "pending : " + str(pending.keys()) + "\n"
 	status += "chunks  : " + str(chunks.keys()) + "\n"
+	status += "height difference : from " + str(graph.min_height) + " to " + str(graph.max_height)
 
 	status_output.text = status
 
@@ -120,8 +121,8 @@ func load_keyed_chunk(chunk_key):
 	var new_chunk = is_ready(chunk_key)
 	if (new_chunk):
 		new_chunk.set_name(str(chunk_key))
-		print ("Adding chunk to scene: " + str(chunk_key))
-		print ("              os time: " + str(OS.get_unix_time()))
+		# print ("Adding chunk to scene: " + str(chunk_key))
+		# print ("              os time: " + str(OS.get_unix_time()))
 		add_child(new_chunk)
 		chunks[chunk_key] = new_chunk
 	else:

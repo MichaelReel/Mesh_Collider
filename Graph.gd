@@ -9,8 +9,9 @@ var triangles
 var hash_tool
 
 # Some fields used to track limits
-var min_height = INF
-var max_height = -INF
+# Set with some reasonable defaults and update later
+var min_height = 0.0
+var max_height = 1.5
 
 class Vertex:
 	var pos    # Vector3
@@ -210,10 +211,6 @@ func set_height_features(x_offset = 0.0, z_offset = 0.0):
 	# The hash instances in hashes need to implement a getHash(x, y) function
 	# Each getHash will be call for each vertex and the height added by amplitude
 	# Where amplitude is modified for each hashes by the multiplier
-
-	# Reset limits
-	min_height = INF
-	max_height = -INF
 
 	for v in vertices:
 		var new_height = hash_tool.getHash(v.pos.x + x_offset, v.pos.z + z_offset)

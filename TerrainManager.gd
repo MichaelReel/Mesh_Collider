@@ -2,6 +2,7 @@ extends Spatial
 
 var Chunk = load("res://Land.gd")
 var Graph = load("res://Graph.gd")
+var HeightHash = load("res://HeightHash.gd")
 
 var chunks = {} # All loaded chunks
 
@@ -53,8 +54,12 @@ const CHUNK_ORDERS = [
 func _ready():
 	print("readying chunk manager")
 	status_output = $"/root/Root/HUD/Panel/TerrainLabel"
-	graph = Graph.new()
 	player = $"/root/Root/PlayerBody"
+
+	# Create the re-usable graph layer we dump meshes from
+	var hhash = HeightHash.new()
+	graph = Graph.new(hhash)
+	graph.create_base_square_grid(grid_size.x, grid_size.y)
 
 	# Set up the threading components
 	# mutex = Mutex.new()

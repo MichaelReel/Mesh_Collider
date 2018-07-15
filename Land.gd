@@ -3,7 +3,6 @@ extends MeshInstance
 var graph
 
 var Graph = load("res://Graph.gd")
-var Perlin = load("res://PerlinRef.gd")
 
 var grid_size
 var offset
@@ -30,8 +29,6 @@ func _init(gs, os, communal_graph = null):
 		graph = Graph.new()
 
 func generate_content():
-	graph.clear()
-
 	print ("Creating new land chunk: " + str(offset) + " with grid: " + str(grid_size) + ",")
 	print ("            translation: " + str(translation) + ", scale: " + str(scale))
 	print ("                os time: " + str(OS.get_unix_time()))
@@ -52,25 +49,12 @@ func generate_content():
 
 func add_base_height_features(grid_size, offset):
 
-	graph.create_base_square_grid(grid_size.x, grid_size.y)
-
-	var zoom = 0.5
-	var procs = [
-		Perlin.new(0.125, 0.125, 1.0, zoom),
-		Perlin.new(1.0, 1.0, 1.0, zoom),
-		Perlin.new(0.03125, 0.03125, 1.0, zoom),
-		Perlin.new(0.0078125, 0.0078125, 1.0, zoom),
-	]
-
-	graph.create_height_features(procs, 0.125, 0.25, 0.125, offset.x, offset.z)
+	graph.set_height_features(offset.x, offset.z)
 
 func create_mesh():
 	if not graph:
 		print("No input or no surface tool supplied!")
 		return
-
-	# Update the vertex indices
-	graph.update_vertex_indices()
 	
 	# Create a new mesh
 	var mesh = Mesh.new()

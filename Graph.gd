@@ -6,6 +6,8 @@ var vertices
 var edges
 var triangles
 
+var hash_tool
+
 # Some fields used to track limits
 var min_height = INF
 var max_height = -INF
@@ -147,10 +149,11 @@ class Triangle:
 			list.insert(t_ind, t)
 		return t
 
-func _init():
+func _init(ht):
 	vertices  = []
 	edges     = []
 	triangles = []
+	hash_tool = ht
 
 func clear():
 	vertices.clear()
@@ -199,8 +202,10 @@ func create_base_square_grid(width, breadth):
 
 			add_triangle(A, B, D)
 			add_triangle(A, D, C)
+	
+	update_vertex_indices()
 
-func create_height_features(hashes, base_height, start_amp, amp_multiplier, x_offset = 0.0, z_offset = 0.0):
+func set_height_features(x_offset = 0.0, z_offset = 0.0):
 	# This takes an array of hash functions to be accumulated for each vertex
 	# The hash instances in hashes need to implement a getHash(x, y) function
 	# Each getHash will be call for each vertex and the height added by amplitude
@@ -211,11 +216,7 @@ func create_height_features(hashes, base_height, start_amp, amp_multiplier, x_of
 	max_height = -INF
 
 	for v in vertices:
-		var new_height = base_height
-		var amp = start_amp
-		for p in hashes:
-			new_height += p.getHash(v.pos.x + x_offset, v.pos.z + z_offset) * amp
-			amp *= amp_multiplier
+		var new_height = hash_tool.getHash(v.pos.x + x_offset, v.pos.z + z_offset)
 		v.set_height(new_height)
 		min_height = min(min_height, new_height)
 		max_height = max(max_height, new_height)

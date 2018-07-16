@@ -1,10 +1,11 @@
-extends KinematicBody
+extends ViewportContainer
 
 # export var speed = 1.0
 
-var camera                      # Camera node - the first person view
-var camera_holder               # Spatial node holding all we want to rotate on the X (vert) axis
+var cameras                     # Camera node - the first person view
+var camera_holders              # Spatial node holding all we want to rotate on the X (vert) axis
 var cam_ref
+var bodies
 
 const MOUSE_SENSITIVITY = 0.10  # May need to adjust depending on mouse sensitivity
 
@@ -22,11 +23,12 @@ const MAX_SLOPE_ANGLE = 89      # Steepest angle we can climb
 var status_output
 
 func _ready():
-	status_output = $"/root/Root/HUD/Panel/PlayerLabel"
-	camera = $CameraMount/Camera
-	camera_holder = $CameraMount
+	status_output  = $"/root/Root/HUD/Panel/PlayerLabel"
+	bodies         = [ $Near/PlayerBody, $Far/BodyMount ]
+	camera_holders = [ $Near/PlayerBody/CameraMount, $Far/BodyMount/CameraMount ]
+	cameras        = [ $Near/PlayerBody/CameraMount/Camera, $Far/BodyMount/CameraMount/Camera ]
 
-	cam_ref = weakref(camera)
+	cam_ref = weakref(cameras[0])
 
 	# Keep the mouse in the current window
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -41,12 +43,12 @@ func _physics_process(delta):
 
 	# Check camera hasn't been freed
 	if not cam_ref.get_ref():
-		camera = $CameraMount/Camerat
-		cam_ref = weakref(camera)
+		cameras = [ $Near/PlayerBody/CameraMount/Camera, $Far/CameraMount/Camera ]
+		cam_ref = weakref(cameras[0])
 		return
 
 	# Global camera transform
-	var cam_xform = camera.get_global_transform()
+	var cam_xform = cameras[0].get_global_transform()
 
 	# Check the directional input and
 	# get the direction orientated to the camera in the global coords
@@ -68,8 +70,10 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed("up"):
 			vel.y = JUMP_SPEED
 
-	if translation.y < -200:
-		translation.y = 200
+	# If we fall off the map, fall back onto it
+	if bodies[0].translation.y < -200:
+		for body in bodies:
+			body.translation.y = 200
 	
 	# Remove any extra vertical movement from the direction
 	dir.y = 0
@@ -98,7 +102,11 @@ func _physics_process(delta):
 	
 
 	# Use the KinematicBody to control physics movement
-	vel = move_and_slide(vel, Vector3(0,1,0), 5.0, 4, deg2rad(MAX_SLOPE_ANGLE))
+	vel = bodies[0].move_and_slide(vel, Vector3(0,1,0), 5.0, 4, deg2rad(MAX_SLOPE_ANGLE))
+	for body in bodies:
+		if body == bodies[0]: continue
+		body.translation = bodies[0].translation
+
 	# move_and_slide(vel, Vector3(0,1,0))
 
 	## This was only for "Flying" mode - need to turn off gravity to work again
@@ -117,8 +125,8 @@ func _physics_process(delta):
 	status += "hvel        : " + str(hvel) + "\n"
 	status += "target      : " + str(target) + "\n"
 	status += "accel       : " + str(accel) + "\n"
-	status += "translation : " + str(self.translation) + "\n"
-	status += "rotation    : " + str(self.rotation) + "\n"
+	status += "translation : " + str(bodies[0].translation) + "\n"
+	status += "rotation    : " + str(bodies[0].rotation) + "\n"
 
 	status_output.text = status
 
@@ -132,11 +140,15 @@ func _input(event):
 	
 	if event is InputEventMouseMotion && Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		# Rotate camera holder on the X plane given changes to the Y mouse position (Vertical)
-		camera_holder.rotate_x(deg2rad(event.relative.y * MOUSE_SENSITIVITY * -1))
-		# Rotate camera on the Y plane given changes to the X mouse position (Horizontal)
-		self.rotate_y(deg2rad(event.relative.x * MOUSE_SENSITIVITY * -1))
-
+		for camera_holder in camera_holders:
+			camera_holder.rotate_x(deg2rad(event.relative.y * MOUSE_SENSITIVITY * -1))
+		
+		# Rotate cameras on the Y plane given changes to the X mouse position (Horizontal)
+		for body in bodies:
+			body.rotate_y(deg2rad(event.relative.x * MOUSE_SENSITIVITY * -1))
+	
 		# Clamp the vertical look to +- 70 because we don't do back flips or tumbles
-		var camera_rot = camera_holder.rotation_degrees
-		camera_rot.x = clamp(camera_rot.x, -70, 70)
-		camera_holder.rotation_degrees = camera_rot
+		for camera_holder in camera_holders:
+			var camera_rot = camera_holder.rotation_degrees
+			camera_rot.x = clamp(camera_rot.x, -70, 70)
+			camera_holder.rotation_degrees = camera_rot

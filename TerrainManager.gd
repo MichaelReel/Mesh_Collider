@@ -14,6 +14,10 @@ export (ShaderMaterial) var material
 var player
 var graph
 
+# LODs
+var near
+var far
+
 var queue = []   # Chunks not yet created
 var queue_mutex
 
@@ -54,7 +58,9 @@ const CHUNK_ORDERS = [
 func _ready():
 	print("readying chunk manager")
 	status_output = $"/root/Root/HUD/Panel/TerrainLabel"
-	player = $"/root/Root/PlayerBody"
+	player = $"/root/Root/Viewports/Near/PlayerBody"
+	near = $Near
+	far = $Far
 
 	# Create the re-usable graph layer we dump meshes from
 	var hhash = HeightHash.new()
@@ -123,7 +129,7 @@ func load_keyed_chunk(chunk_key):
 		new_chunk.set_name(str(chunk_key))
 		# print ("Adding chunk to scene: " + str(chunk_key))
 		# print ("              os time: " + str(OS.get_unix_time()))
-		add_child(new_chunk)
+		near.add_child(new_chunk)
 		chunks[chunk_key] = new_chunk
 	else:
 		queue_chunk(chunk_key)
@@ -156,6 +162,7 @@ func chunk_loader():
 		new_chunk.scale = chunk_size
 		new_chunk.translation = new_pos
 		new_chunk.material_override = material
+		new_chunk.layers = 2
 		new_chunk.generate_content()
 
 		pending_mutex.lock()

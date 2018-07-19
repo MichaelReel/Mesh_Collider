@@ -4,6 +4,8 @@ extends ViewportContainer
 
 var cameras                     # Camera node - the first person view
 var camera_holders              # Spatial node holding all we want to rotate on the X (vert) axis
+# This is coupled to the grid and chunk sizes in TerrainManager
+export (Array, float) var movement_ratio
 var cam_ref
 var bodies
 
@@ -99,25 +101,16 @@ func _physics_process(delta):
 	vel.x = hvel.x
 	vel.z = hvel.z
 
-	
-
 	# Use the KinematicBody to control physics movement
+	# Slide the first body (kinematic) then move the other bodies to match the movement
 	vel = bodies[0].move_and_slide(vel, Vector3(0,1,0), 5.0, 4, deg2rad(MAX_SLOPE_ANGLE))
-	for body in bodies:
-		if body == bodies[0]: continue
-		body.translation = bodies[0].translation
-
-	# move_and_slide(vel, Vector3(0,1,0))
-
-	## This was only for "Flying" mode - need to turn off gravity to work again
-	# dir = Vector3()
-
-	# if Input.is_action_pressed("down"):
-	# 	dir.y -= 1.0
-	# if Input.is_action_pressed("up"):
-	# 	dir.y += 1.0
-	
-	# translate(dir * speed * delta)
+	for body_ind in range(len(bodies)):
+		if body_ind == 0: continue
+		var body_tran = Vector3()
+		body_tran.x = bodies[0].translation.x * movement_ratio[body_ind]
+		body_tran.y = bodies[0].translation.y
+		body_tran.z = bodies[0].translation.z
+		bodies[body_ind].translation = body_tran
 
 	status += "dir         : " + str(dir) + "\n"
 	status += "cam_xform   : " + str(cam_xform) + "\n"

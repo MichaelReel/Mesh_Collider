@@ -10,12 +10,14 @@ radius = 1.0
 
 [node name="Root" type="Spatial" index="0"]
 
+_sections_unfolded = [ "Transform" ]
+
 [node name="Terrain" type="Spatial" parent="." index="0"]
 
 script = ExtResource( 1 )
 _sections_unfolded = [ "Transform" ]
-grid_size = Vector2( 32, 32 )
-chunk_size = Vector3( 64, 64, 64 )
+grid_size = [ Vector2( 32, 32 ), Vector2( 32, 32 ) ]
+chunk_size = [ Vector3( 64, 64, 64 ), Vector3( 64, 64, 64 ) ]
 material = ExtResource( 2 )
 
 [node name="Far" type="Spatial" parent="Terrain" index="0"]
@@ -43,7 +45,7 @@ size_flags_vertical = 1
 stretch = true
 stretch_shrink = 1
 script = ExtResource( 3 )
-_sections_unfolded = [ "Grow Direction" ]
+movement_ratio = [ 1.0, 1.0 ]
 
 [node name="Far" type="Viewport" parent="Viewports" index="0"]
 
@@ -74,7 +76,7 @@ _sections_unfolded = [ "Rendering" ]
 
 [node name="BodyMount" type="Spatial" parent="Viewports/Far" index="0"]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 64, 48 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 64, 0 )
 _sections_unfolded = [ "Transform" ]
 
 [node name="CameraMount" type="Spatial" parent="Viewports/Far/BodyMount" index="0"]
@@ -84,17 +86,17 @@ _sections_unfolded = [ "Transform" ]
 [node name="Camera" type="Camera" parent="Viewports/Far/BodyMount/CameraMount" index="0"]
 
 keep_aspect = 1
-cull_mask = 6
+cull_mask = 3
 environment = null
 h_offset = 0.0
 v_offset = 0.0
 doppler_tracking = 0
 projection = 0
-current = false
+current = true
 fov = 70.0
 size = 1.0
 near = 0.05
-far = 150.0
+far = 3000.0
 _sections_unfolded = [ "Transform" ]
 
 [node name="Near" type="Viewport" parent="Viewports" index="1"]
@@ -125,7 +127,7 @@ shadow_atlas_quad_3 = 4
 
 [node name="PlayerBody" type="KinematicBody" parent="Viewports/Near" index="0"]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 64, 48 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 64, 0 )
 input_ray_pickable = true
 input_capture_on_drag = false
 collision_layer = 1
@@ -146,17 +148,17 @@ _sections_unfolded = [ "Transform" ]
 [node name="Camera" type="Camera" parent="Viewports/Near/PlayerBody/CameraMount" index="0"]
 
 keep_aspect = 1
-cull_mask = 3
+cull_mask = 1
 environment = null
 h_offset = 0.0
 v_offset = 0.0
 doppler_tracking = 0
 projection = 0
-current = false
+current = true
 fov = 70.0
 size = 1.0
 near = 0.05
-far = 50.0
+far = 100.0
 _sections_unfolded = [ "Transform" ]
 
 [node name="CollisionShape" type="CollisionShape" parent="Viewports/Near/PlayerBody" index="1"]

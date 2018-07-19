@@ -7,8 +7,9 @@ var HeightHash = load("res://HeightHash.gd")
 var chunk_refs = {} # LOD and Pos details for loaded and yet to be loaded chunks
 
 # These are coupled to the movement ratios in CameraControl
-export (Array, Vector2) var grid_size
-export (Array, Vector3) var chunk_size
+export (Array, Vector2) var grid_sizes
+export (Array, Vector3) var chunk_sizes
+export (Array, float) var graph_scales
 
 export (ShaderMaterial) var material
 
@@ -43,7 +44,7 @@ const CO = [
 	Vector3( 1, 0, -1),
 ]
 
-# TODO: Can probably inline calculate these:
+# TODO: Can probably inline calculate these without much hit:
 # pre-calc chunk order for rotations - depending on direction facing
 const CHUNK_ORDERS = [
 	[ CO[0], CO[1], CO[7], CO[2], CO[6], CO[3], CO[5], CO[4] ],
@@ -76,9 +77,12 @@ func _ready():
 
 	# Create the re-usable graph layer we dump meshes from
 	var hhash = HeightHash.new()
-	var graph = Graph.new(hhash)
-	graph.create_base_square_grid(grid_size[primary_lod_ind].x, grid_size[primary_lod_ind].y)
-	graphs.append(graph)
+	var lod = 0
+	for grid_size in grid_sizes:
+		var graph = Graph.new(hhash, graph_scales[lod])
+		graph.create_base_square_grid(grid_size.x, grid_size.y)
+		graphs.append(graph)
+		lod += 1
 
 	# Set up the threading components
 	# mutex = Mutex.new()
@@ -87,13 +91,13 @@ func _ready():
 	thread = Thread.new()
 
 	# Need to load/create the first chunk before starting loading thread
-	var key_str = get_centered_chunk_key_str()
+	var key_str = get_centered_chunk_key_strs()[primary_lod_ind]
 	queue_chunk(key_str)
 	chunk_loader()
 	load_keyed_chunk(key_str)
 
 	# TODO: Not sure I like this coupling, may need to rethink:
-	player.translation.y = chunk_size[primary_lod_ind].y * graphs[primary_lod_ind].max_height * 1.1
+	player.translation.y = chunk_sizes[primary_lod_ind].y * graphs[primary_lod_ind].max_height * 1.1
 
 	# Kick off the loading thread
 	thread.start(self, "chunk_generation", 0)
@@ -108,31 +112,40 @@ func get_chunk_key_str(lod, pos):
 func get_chunk_by_key_str(key_str):
 	return chunk_refs[key_str]
 
-func get_centered_chunk_key_str():
+func get_centered_chunk_key_strs():
 	var center = player.translation
+	var key_strs = []
 	
-	var pos = Vector3()
-	pos.x = floor(center.x / chunk_size[0].x)
-	pos.y = 0.0
-	pos.z = floor(center.z / chunk_size[0].z)
-	
-	var key_str = get_chunk_key_str(0, pos)
+	var lod = 0
+	for chunk_size in chunk_sizes:
+		var pos = Vector3()
+		pos.x = floor(center.x / chunk_size.x)
+		pos.y = 0.0
+		pos.z = floor(center.z / chunk_size.z)
 
-	return key_str
+		key_strs.append(get_chunk_key_str(lod, pos))
+		lod += 1
+
+	return key_strs
 
 func get_chunk_key_strs_viewable():
-	var center_chunk_key_str = get_centered_chunk_key_str()
-	var center_chunk_pos = get_chunk_by_key_str(center_chunk_key_str).pos
-
-	var chunk_queue = [center_chunk_key_str]
+	var center_chunk_key_strs = get_centered_chunk_key_strs()
 
 	# Queue by direction facing
 	var rotation = player.rotation.y
 	var rot_index = int(floor( (rotation + PI) * 4 / PI + 0.5)) % 8
+	var chunk_queue = []
 
-	for offset in CHUNK_ORDERS[rot_index]:
-		var key_str = get_chunk_key_str(0, center_chunk_pos + offset)
-		chunk_queue.append(key_str)
+	var lod = 0
+	for center_chunk_key_str in center_chunk_key_strs:
+		var center_chunk_pos = get_chunk_by_key_str(center_chunk_key_str).pos
+
+		chunk_queue.append(center_chunk_key_str)
+
+		for offset in CHUNK_ORDERS[rot_index]:
+			var key_str = get_chunk_key_str(lod, center_chunk_pos + offset)
+			chunk_queue.append(key_str)
+		lod += 1
 	
 	return chunk_queue
 
@@ -190,10 +203,10 @@ func chunk_loader():
 		var chunk_key = get_chunk_by_key_str(key_str)
 		var chunk_pos = chunk_key.pos
 		var lod_ind = chunk_key.lod
-		var new_pos = Vector3(chunk_size[0].x * chunk_pos.x, chunk_size[0].y * chunk_pos.y, chunk_size[0].z * chunk_pos.z)
+		var new_pos = Vector3(chunk_sizes[lod_ind].x * chunk_pos.x, chunk_sizes[lod_ind].y * chunk_pos.y, chunk_sizes[lod_ind].z * chunk_pos.z)
 
-		var new_chunk = Chunk.new(grid_size[0], chunk_pos, graphs[0])
-		new_chunk.scale = chunk_size[0]
+		var new_chunk = Chunk.new(grid_sizes[lod_ind], chunk_pos, graphs[lod_ind])
+		new_chunk.scale = chunk_sizes[lod_ind]
 		new_chunk.translation = new_pos
 		new_chunk.material_override = material
 		new_chunk.layers = lod_ind + 1

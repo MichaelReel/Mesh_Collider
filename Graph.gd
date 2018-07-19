@@ -7,6 +7,7 @@ var edges
 var triangles
 
 var hash_tool
+var scale
 
 # Some fields used to track limits
 # Set with some reasonable defaults and update later
@@ -150,11 +151,12 @@ class Triangle:
 			list.insert(t_ind, t)
 		return t
 
-func _init(ht):
+func _init(ht, s):
 	vertices  = []
 	edges     = []
 	triangles = []
 	hash_tool = ht
+	scale = s
 
 func clear():
 	vertices.clear()
@@ -213,7 +215,7 @@ func set_height_features(x_offset = 0.0, z_offset = 0.0):
 	# Where amplitude is modified for each hashes by the multiplier
 
 	for v in vertices:
-		var new_height = hash_tool.getHash(v.pos.x + x_offset, v.pos.z + z_offset)
+		var new_height = hash_tool.getHash((v.pos.x + x_offset) * scale, (v.pos.z + z_offset) * scale)
 		v.set_height(new_height)
 		min_height = min(min_height, new_height)
 		max_height = max(max_height, new_height)

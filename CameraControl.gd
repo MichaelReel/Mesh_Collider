@@ -4,7 +4,7 @@ extends ViewportContainer
 
 var cameras                     # Camera node - the first person view
 var camera_holders              # Spatial node holding all we want to rotate on the X (vert) axis
-# This is coupled to the grid and chunk sizes in TerrainManager
+# This is coupled to the chunk sizes and graph scales in TerrainManager
 export (Array, float) var movement_ratio
 var cam_ref
 var bodies
@@ -14,8 +14,6 @@ const MOUSE_SENSITIVITY = 0.10  # May need to adjust depending on mouse sensitiv
 # Intern variables.
 var vel = Vector3()
 const NORMAL_GRAVITY = -24.8    # Strength of gravity while walking
-const TERMINAL_VELOCITY = 50    # If we're falling this fast, something isn't right
-const UNSTICK_SPEED = 4         # Hack "jump" speed to unstick camera off the terrain
 const MAX_SPEED = 20            # Fastest player can reach
 const JUMP_SPEED = 18           # Affects how high we can jump
 const ACCEL = 3.5               # How fast we get to top speed

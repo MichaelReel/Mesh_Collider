@@ -31,8 +31,8 @@ class ContinentalDome:
 
 
 func _init():
-	island_limiter = ContinentalDome.new(16.0)
-	variation_hash = Perlin.new(8.0, 8.0, 8.0, 1.0)
+	island_limiter = ContinentalDome.new(32.0)
+	variation_hash = Perlin.new(16.0, 16.0, 16.0, 1.0)
 	hashes = [
 		Perlin.new(1.0, 1.0, 1.0, 1.0),
 		Perlin.new(0.25, 0.25, 0.25, 1.0),

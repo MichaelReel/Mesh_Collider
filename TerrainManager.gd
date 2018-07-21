@@ -71,7 +71,7 @@ func _ready():
 	print("readying chunk manager")
 	status_output = $"/root/Root/HUD/Panel/TerrainLabel"
 	player = $"/root/Root/Viewports/Near/PlayerBody"
-	lods = [ $Near, $Far ]
+	lods = [ $Near, $Far, $Further ]
 
 	var primary_lod_ind = 0
 
@@ -111,6 +111,9 @@ func get_chunk_key_str(lod, pos):
 
 func get_chunk_by_key_str(key_str):
 	return chunk_refs[key_str]
+
+func get_all_chunk_key_strs():
+	return chunk_refs.keys()
 
 func get_centered_chunk_key_strs():
 	var center = player.translation
@@ -152,11 +155,16 @@ func get_chunk_key_strs_viewable():
 func _process(delta):
 	var chunk_key_strs_viewable = get_chunk_key_strs_viewable()
 
+	var chunks_releasable = get_all_chunk_key_strs()
 	# Listed the view direction chunks first
 	# Load chunks in that order
 	for key_str in chunk_key_strs_viewable:
+		chunks_releasable.erase(key_str)
 		if not active.has(key_str):
 			load_keyed_chunk(key_str)
+	
+	for key_str in chunks_releasable:
+		release_chunk_by_key_str(key_str)
 
 	var status = ""
 	status += "height difference : from " + str(graphs[0].min_height) + " to " + str(graphs[0].max_height) + "\n"
@@ -165,6 +173,20 @@ func _process(delta):
 	status += "active  : " + str(active) + "\n"
 
 	status_output.text = status
+
+func release_chunk_by_key_str(key_str):
+	var chunk_key = get_chunk_by_key_str(key_str)
+	# Only release active keys
+	if active.has(key_str) and not pending.has(key_str):
+		if queue.has(key_str):
+			queue_mutex.lock()
+			queue.erase(key_str)
+			queue_mutex.unlock()
+		var loaded_chunk = active[key_str]
+		lods[chunk_key.lod].remove_child(loaded_chunk)
+		loaded_chunk.free()
+		active.erase(key_str)
+		chunk_refs.erase(key_str)
 
 func load_keyed_chunk(key_str):
 	var new_chunk = is_ready(key_str)
@@ -209,8 +231,8 @@ func chunk_loader():
 		new_chunk.scale = chunk_sizes[lod_ind]
 		new_chunk.translation = new_pos
 		new_chunk.material_override = material
-		new_chunk.layers = lod_ind + 1
-		new_chunk.generate_content()
+		new_chunk.layers = 1 << lod_ind
+		new_chunk.generate_content(lod_ind == 0)
 
 		pending_mutex.lock()
 		pending[key_str] = new_chunk
@@ -234,4 +256,7 @@ func is_ready(key_str):
 func _exit_tree():
 	self.gen_chunks = false
 	thread.wait_to_finish()
+
+	for key_str in get_all_chunk_key_strs():
+		release_chunk_by_key_str(key_str)
 

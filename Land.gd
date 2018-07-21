@@ -28,7 +28,7 @@ func _init(gs, os, communal_graph = null):
 	else:
 		graph = Graph.new()
 
-func generate_content():
+func generate_content(with_collision = true):
 	# print ("Creating new land chunk: " + str(offset) + " with grid: " + str(grid_size) + ",")
 	# print ("            translation: " + str(translation) + ", scale: " + str(scale))
 	# print ("                os time: " + str(OS.get_unix_time()))
@@ -41,8 +41,9 @@ func generate_content():
 	# Create a mesh from the voronoi site info
 	self.set_mesh(create_mesh())
 
-	# Make a collsion surface from this mesh and add it to the scene
-	add_child(create_trimesh_collision())
+	if with_collision:
+		# Make a collsion surface from this mesh and add it to the scene
+		add_child(create_trimesh_collision())
 
 	# print ("Content generated: " + str(offset))
 	# print ("          os time: " + str(OS.get_unix_time()))

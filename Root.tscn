@@ -1,8 +1,16 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://TerrainManager.gd" type="Script" id=1]
 [ext_resource path="res://Land.material" type="Material" id=2]
 [ext_resource path="res://CameraControl.gd" type="Script" id=3]
+
+[sub_resource type="PlaneMesh" id=2]
+
+custom_aabb = AABB( 0, 0, 0, 0, 0, 0 )
+size = Vector2( 65536, 65536 )
+subdivide_width = 0
+subdivide_depth = 0
+_sections_unfolded = [ "Resource" ]
 
 [sub_resource type="SphereShape" id=1]
 
@@ -16,18 +24,70 @@ _sections_unfolded = [ "Transform" ]
 
 script = ExtResource( 1 )
 _sections_unfolded = [ "Transform" ]
-grid_sizes = [ Vector2( 32, 32 ), Vector2( 32, 32 ) ]
-chunk_sizes = [ Vector3( 64, 64, 64 ), Vector3( 1024, 64, 1024 ) ]
-graph_scales = [ 1.0, 16.0 ]
+grid_sizes = [ Vector2( 32, 32 ), Vector2( 32, 32 ), Vector2( 32, 32 ) ]
+chunk_sizes = [ Vector3( 64, 128, 64 ), Vector3( 256, 128, 256 ), Vector3( 1024, 128, 1024 ) ]
+graph_scales = [ 1.0, 4.0, 16.0 ]
 material = ExtResource( 2 )
 
-[node name="Far" type="Spatial" parent="Terrain" index="0"]
+[node name="Further" type="Spatial" parent="Terrain" index="0"]
 
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
 
-[node name="Near" type="Spatial" parent="Terrain" index="1"]
+[node name="SeaLevel" type="MeshInstance" parent="Terrain/Further" index="0"]
+
+layers = 4
+material_override = null
+cast_shadow = 1
+extra_cull_margin = 0.0
+use_in_baked_light = false
+lod_min_distance = 0.0
+lod_min_hysteresis = 0.0
+lod_max_distance = 0.0
+lod_max_hysteresis = 0.0
+mesh = SubResource( 2 )
+skeleton = NodePath("..")
+material/0 = null
+_sections_unfolded = [ "Transform", "material" ]
+
+[node name="Far" type="Spatial" parent="Terrain" index="1"]
 
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
+
+[node name="SeaLevel" type="MeshInstance" parent="Terrain/Far" index="0"]
+
+layers = 2
+material_override = null
+cast_shadow = 1
+extra_cull_margin = 0.0
+use_in_baked_light = false
+lod_min_distance = 0.0
+lod_min_hysteresis = 0.0
+lod_max_distance = 0.0
+lod_max_hysteresis = 0.0
+mesh = SubResource( 2 )
+skeleton = NodePath("..")
+material/0 = null
+_sections_unfolded = [ "Transform", "material" ]
+
+[node name="Near" type="Spatial" parent="Terrain" index="2"]
+
+_sections_unfolded = [ "Pause", "Transform", "Visibility" ]
+
+[node name="SeaLevel" type="MeshInstance" parent="Terrain/Near" index="0"]
+
+layers = 1
+material_override = null
+cast_shadow = 1
+extra_cull_margin = 0.0
+use_in_baked_light = false
+lod_min_distance = 0.0
+lod_min_hysteresis = 0.0
+lod_max_distance = 0.0
+lod_max_hysteresis = 0.0
+mesh = SubResource( 2 )
+skeleton = NodePath("..")
+material/0 = null
+_sections_unfolded = [ "Transform", "material" ]
 
 [node name="Viewports" type="ViewportContainer" parent="." index="1"]
 
@@ -46,9 +106,9 @@ size_flags_vertical = 1
 stretch = true
 stretch_shrink = 1
 script = ExtResource( 3 )
-movement_ratio = [ 1.0, 1.0 ]
+movement_ratio = [ 1.0, 1.0, 1.0 ]
 
-[node name="Far" type="Viewport" parent="Viewports" index="0"]
+[node name="Further" type="Viewport" parent="Viewports" index="0"]
 
 arvr = false
 size = Vector2( 1024, 600 )
@@ -56,7 +116,59 @@ own_world = false
 world = null
 transparent_bg = false
 msaa = 0
-hdr = true
+hdr = false
+disable_3d = false
+usage = 2
+debug_draw = 0
+render_target_v_flip = false
+render_target_clear_mode = 0
+render_target_update_mode = 3
+audio_listener_enable_2d = false
+audio_listener_enable_3d = false
+physics_object_picking = false
+gui_disable_input = false
+gui_snap_controls_to_pixels = true
+shadow_atlas_size = 0
+shadow_atlas_quad_0 = 2
+shadow_atlas_quad_1 = 2
+shadow_atlas_quad_2 = 3
+shadow_atlas_quad_3 = 4
+_sections_unfolded = [ "Rendering" ]
+
+[node name="BodyMount" type="Spatial" parent="Viewports/Further" index="0"]
+
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 64, 0 )
+_sections_unfolded = [ "Transform" ]
+
+[node name="CameraMount" type="Spatial" parent="Viewports/Further/BodyMount" index="0"]
+
+_sections_unfolded = [ "Transform" ]
+
+[node name="Camera" type="Camera" parent="Viewports/Further/BodyMount/CameraMount" index="0"]
+
+keep_aspect = 1
+cull_mask = 4
+environment = null
+h_offset = 0.0
+v_offset = 0.0
+doppler_tracking = 0
+projection = 0
+current = true
+fov = 70.0
+size = 1.0
+near = 256.0
+far = 8192.0
+_sections_unfolded = [ "Transform", "Visibility" ]
+
+[node name="Far" type="Viewport" parent="Viewports" index="1"]
+
+arvr = false
+size = Vector2( 1024, 600 )
+own_world = false
+world = null
+transparent_bg = true
+msaa = 0
+hdr = false
 disable_3d = false
 usage = 2
 debug_draw = 0
@@ -96,11 +208,11 @@ projection = 0
 current = true
 fov = 70.0
 size = 1.0
-near = 24.0
+near = 16.0
 far = 2048.0
 _sections_unfolded = [ "Transform", "Visibility" ]
 
-[node name="Near" type="Viewport" parent="Viewports" index="1"]
+[node name="Near" type="Viewport" parent="Viewports" index="2"]
 
 arvr = false
 size = Vector2( 1024, 600 )
@@ -125,6 +237,7 @@ shadow_atlas_quad_0 = 2
 shadow_atlas_quad_1 = 2
 shadow_atlas_quad_2 = 3
 shadow_atlas_quad_3 = 4
+_sections_unfolded = [ "Rendering" ]
 
 [node name="PlayerBody" type="KinematicBody" parent="Viewports/Near" index="0"]
 

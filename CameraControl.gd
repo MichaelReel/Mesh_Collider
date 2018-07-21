@@ -24,9 +24,9 @@ var status_output
 
 func _ready():
 	status_output  = $"/root/Root/HUD/Panel/PlayerLabel"
-	bodies         = [ $Near/PlayerBody, $Far/BodyMount ]
-	camera_holders = [ $Near/PlayerBody/CameraMount, $Far/BodyMount/CameraMount ]
-	cameras        = [ $Near/PlayerBody/CameraMount/Camera, $Far/BodyMount/CameraMount/Camera ]
+	bodies         = [ $Near/PlayerBody, $Far/BodyMount, $Further/BodyMount ]
+	camera_holders = [ $Near/PlayerBody/CameraMount, $Far/BodyMount/CameraMount, $Further/BodyMount/CameraMount ]
+	cameras        = [ $Near/PlayerBody/CameraMount/Camera, $Far/BodyMount/CameraMount/Camera, $Further/BodyMount/CameraMount/Camera ]
 
 	cam_ref = weakref(cameras[0])
 
@@ -43,7 +43,7 @@ func _physics_process(delta):
 
 	# Check camera hasn't been freed
 	if not cam_ref.get_ref():
-		cameras = [ $Near/PlayerBody/CameraMount/Camera, $Far/CameraMount/Camera ]
+		cameras = [ $Near/PlayerBody/CameraMount/Camera, $Far/CameraMount/Camera, $Further/BodyMount/CameraMount/Camera ]
 		cam_ref = weakref(cameras[0])
 		return
 

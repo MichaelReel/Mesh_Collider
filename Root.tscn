@@ -1,16 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://TerrainManager.gd" type="Script" id=1]
 [ext_resource path="res://Land.material" type="Material" id=2]
 [ext_resource path="res://CameraControl.gd" type="Script" id=3]
-
-[sub_resource type="PlaneMesh" id=2]
-
-custom_aabb = AABB( 0, 0, 0, 0, 0, 0 )
-size = Vector2( 65536, 65536 )
-subdivide_width = 0
-subdivide_depth = 0
-_sections_unfolded = [ "Resource" ]
 
 [sub_resource type="SphereShape" id=1]
 
@@ -33,61 +25,13 @@ material = ExtResource( 2 )
 
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
 
-[node name="SeaLevel" type="MeshInstance" parent="Terrain/Further" index="0"]
-
-layers = 4
-material_override = null
-cast_shadow = 1
-extra_cull_margin = 0.0
-use_in_baked_light = false
-lod_min_distance = 0.0
-lod_min_hysteresis = 0.0
-lod_max_distance = 0.0
-lod_max_hysteresis = 0.0
-mesh = SubResource( 2 )
-skeleton = NodePath("..")
-material/0 = null
-_sections_unfolded = [ "Transform", "material" ]
-
 [node name="Far" type="Spatial" parent="Terrain" index="1"]
 
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
 
-[node name="SeaLevel" type="MeshInstance" parent="Terrain/Far" index="0"]
-
-layers = 2
-material_override = null
-cast_shadow = 1
-extra_cull_margin = 0.0
-use_in_baked_light = false
-lod_min_distance = 0.0
-lod_min_hysteresis = 0.0
-lod_max_distance = 0.0
-lod_max_hysteresis = 0.0
-mesh = SubResource( 2 )
-skeleton = NodePath("..")
-material/0 = null
-_sections_unfolded = [ "Transform", "material" ]
-
 [node name="Near" type="Spatial" parent="Terrain" index="2"]
 
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
-
-[node name="SeaLevel" type="MeshInstance" parent="Terrain/Near" index="0"]
-
-layers = 1
-material_override = null
-cast_shadow = 1
-extra_cull_margin = 0.0
-use_in_baked_light = false
-lod_min_distance = 0.0
-lod_min_hysteresis = 0.0
-lod_max_distance = 0.0
-lod_max_hysteresis = 0.0
-mesh = SubResource( 2 )
-skeleton = NodePath("..")
-material/0 = null
-_sections_unfolded = [ "Transform", "material" ]
 
 [node name="Viewports" type="ViewportContainer" parent="." index="1"]
 
@@ -156,7 +100,7 @@ projection = 0
 current = true
 fov = 70.0
 size = 1.0
-near = 256.0
+near = 128.0
 far = 8192.0
 _sections_unfolded = [ "Transform", "Visibility" ]
 

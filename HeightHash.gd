@@ -51,4 +51,4 @@ func getHash(x, y):
 	for p in hashes:
 		new_height += p.getHash(x, y) * amp
 		amp *= amp_multiplier
-	return new_height * island_limiter.getHash(x, y) * (variation_hash.getHash(x, y) + 1.0)
+	return new_height * (variation_hash.getHash(x, y) + 1.0) # * island_limiter.getHash(x, y)

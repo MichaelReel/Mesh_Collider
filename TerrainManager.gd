@@ -232,7 +232,7 @@ func chunk_loader():
 		new_chunk.translation = new_pos
 		new_chunk.material_override = material
 		new_chunk.layers = 1 << lod_ind
-		new_chunk.generate_content(lod_ind == 0)
+		new_chunk.generate_content(true if lod_ind == 0 else false)
 
 		pending_mutex.lock()
 		pending[key_str] = new_chunk

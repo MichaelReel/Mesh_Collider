@@ -44,18 +44,8 @@ const CO = [
 	Vector3( 1, 0, -1),
 ]
 
-# TODO: Can probably inline calculate these without much hit:
 # pre-calc chunk order for rotations - depending on direction facing
-const CHUNK_ORDERS = [
-	[ CO[0], CO[1], CO[7], CO[2], CO[6], CO[3], CO[5], CO[4] ],
-	[ CO[1], CO[2], CO[0], CO[3], CO[7], CO[4], CO[6], CO[5] ],
-	[ CO[2], CO[3], CO[1], CO[4], CO[0], CO[5], CO[7], CO[6] ],
-	[ CO[3], CO[4], CO[2], CO[5], CO[1], CO[6], CO[0], CO[7] ],
-	[ CO[4], CO[5], CO[3], CO[6], CO[2], CO[7], CO[1], CO[0] ],
-	[ CO[5], CO[6], CO[4], CO[7], CO[3], CO[0], CO[2], CO[1] ],
-	[ CO[6], CO[7], CO[5], CO[0], CO[4], CO[1], CO[3], CO[2] ],
-	[ CO[7], CO[0], CO[6], CO[1], CO[5], CO[2], CO[4], CO[3] ],
-]
+const CHUNK_ORDERS = [ CO[0], CO[1], CO[7], CO[2], CO[6], CO[3], CO[5], CO[4] ]
 
 class ChunkRef:
 	var lod
@@ -145,7 +135,10 @@ func get_chunk_key_strs_viewable():
 
 		chunk_queue.append(center_chunk_key_str)
 
-		for offset in CHUNK_ORDERS[rot_index]:
+		for offset_ind in range(len(CHUNK_ORDERS)):
+			offset_ind += rot_index
+			offset_ind %= len(CHUNK_ORDERS)
+			var offset = CHUNK_ORDERS[offset_ind]
 			var key_str = get_chunk_key_str(lod, center_chunk_pos + offset)
 			chunk_queue.append(key_str)
 		lod += 1

@@ -145,7 +145,7 @@ func get_chunk_key_strs_viewable():
 	
 	return chunk_queue
 
-func _process(delta):
+func _process(_delta):
 	var chunk_key_strs_viewable = get_chunk_key_strs_viewable()
 
 	var chunks_releasable = get_all_chunk_key_strs()
@@ -195,7 +195,7 @@ func load_keyed_chunk(key_str):
 
 const once_per = 0.03
 
-func chunk_generation(unused):
+func chunk_generation(_unused):
 	print("Starting chunk checker")
 	
 	gen_chunks = true

@@ -35,20 +35,20 @@ func generate_content(with_collision = true):
 
 
 	# Update the input graph to give variable heights
-	add_base_height_features(grid_size, offset)
+	add_base_height_features()
 
 	# Creating drawing elements
 	# Create a mesh from the voronoi site info
 	self.set_mesh(create_mesh())
 
 	if with_collision:
-		# Make a collsion surface from this mesh and add it to the scene
-		add_child(create_trimesh_collision())
+		# Make a collsion surface for this mesh
+		create_trimesh_collision()
 
 	# print ("Content generated: " + str(offset))
 	# print ("          os time: " + str(OS.get_unix_time()))
 
-func add_base_height_features(grid_size, offset):
+func add_base_height_features():
 
 	graph.set_height_features(offset.x, offset.z)
 

@@ -16,7 +16,7 @@ func _init(width = 1, height = 1, depth = 1, zoom = 1):
 	self.dz = float(zoom) / depth
 	var permutation = self.getPermutation()
 	for i in range(512):
-	    self.p.append(permutation[i % permutation.size()])
+		self.p.append(permutation[i % permutation.size()])
 
 func getPermutation():
 	return [
@@ -70,9 +70,9 @@ func getHash(x, y, z = 0):
 func getOctaveHash(x, y, z = 0, n = 1):
 	var total = 0
 	var scale = 1
-	for i in range(n):
+	for _i in range(n):
 		total += getHash(x * scale, y * scale, z * scale) * (1.0 / float(scale))
-		scale << 1
+		scale = scale << 1
 	
 	return total
 
